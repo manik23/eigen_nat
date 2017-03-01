@@ -2,6 +2,8 @@
 #include "common_client.h"
 #include "r_client.h"
 
+
+
 int main(int argc, char **argv){
 
 	if(argc!=2){
@@ -31,30 +33,57 @@ int main(int argc, char **argv){
 
 		send_registration_packet(udpRegistrationSocket,udpRegistrationStruct);		// for step 1 and 2
 
-		struct client *o_client=wait_for_udp_conn_req(udpRegistrationSocket,udpRegistrationStruct);
+		wait_for_udp_conn_req(udpRegistrationSocket,udpRegistrationStruct);
+
+		// For step 4 and 5
+		struct sockaddr_in src=tcp_to_server(argv);
 
 		close(udpRegistrationSocket);
-		tcp_to_server(argv);
-		send_tcp_conn_to_o_client(o_client);
+		send_tcp_conn_to_o_client(src,i_client);
+		
+
+		char ip_address[SIZE_OF_IPV4_ADDRESS];
+		char port[6];
+		int intport;
+
+		inet_ntop(AF_INET,&src.sin_addr,ip_address,sizeof(ip_address));
+		intport=ntohs(src.sin_port);
+		sprintf(port,"%d",intport);
 
 		close(fd[0]);
-		write(fd[1],"ok",sizeof("ok"));
+		write(fd[1],port,sizeof(port));
+
+		send_tcp_to_s(argv);       //step 9
+
 	}
 	else{
 
-		char buff[2];
-		int tcpSocket;
+		char port[6];
+		int tcpSocket,option;
 		struct sockaddr_in tcpStruct;
 
 		close(fd[1]);
-		read(fd[1],buff,sizeof(buff));
+		memset(port,0,sizeof(port));
+		read(fd[0],port,sizeof(port));
+
+		int intport;
+		sscanf(port,"%d",&intport);
+
+		cout<<"My Src port and ip"<<endl;
+		cout<<"Port :"<<intport<<endl;
 
 		tcpSocket=socket(AF_INET,SOCK_STREAM,0);
+		setsockopt(tcpSocket, SOL_SOCKET, SO_REUSEADDR, &option, sizeof(option));
+
+
 		tcpStruct.sin_family=AF_INET;
-		tcpStruct.sin_port=htons(5003);
+		tcpStruct.sin_port=htons(intport);
 		tcpStruct.sin_addr.s_addr=htonl(INADDR_ANY);
 
-		bind(tcpSocket,(struct sockaddr *)&tcpStruct,sizeof(tcpStruct));
+		if(bind(tcpSocket,(struct sockaddr *)&tcpStruct,sizeof(tcpStruct))<0)
+			cout<<"Bind Unsuccessfull"<<endl;
+		else
+			cout<<"Bind successfull on port : "<<intport<<endl;
 
 		listen(tcpSocket,10);
 

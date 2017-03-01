@@ -1,4 +1,6 @@
 void send_req_for_conn2_server(char *ip_address){
+
+	// start step 3
 	int tcpSocket,sock,nByte,count=0;
 	char ip[SIZE_OF_IPV4_ADDRESS],port[6];
 	int intport;
@@ -12,19 +14,19 @@ void send_req_for_conn2_server(char *ip_address){
 	connect(tcpSocket,(struct sockaddr *)&tcpStruct,sizeof(tcpStruct));
 
 	write(tcpSocket,"b8:76:3f:87:c1:a",17);
+
+	// End of stpe 3
 	
 	nByte=read(tcpSocket,ip,sizeof(ip));
-	nByte=read(tcpSocket,port,6);
+	nByte=read(tcpSocket,port,sizeof(port));
 
 	cout<<"IP Address :"<<ip<<endl<<"Port  :"<<port<<endl;
-
-	close(tcpSocket);
 
 	//send tcp connection request to other client
 	sock=socket(AF_INET,SOCK_STREAM,0);
 	sscanf(port,"%d",&intport);
 	tcpStruct1.sin_family=AF_INET;
-	tcpStruct1.sin_port=htons(5003);
+	tcpStruct1.sin_port=htons(intport);
 	tcpStruct1.sin_addr.s_addr=inet_addr(ip);
 
 	if(connect(sock,(struct sockaddr*)&tcpStruct1,sizeof(tcpStruct1))<0)
@@ -34,13 +36,12 @@ void send_req_for_conn2_server(char *ip_address){
 	else
 	{
 		cout<<"connected to R"<<endl;
-	}
-
-	while(1){
-		cout<<"Enter a message to send"<<endl;
-		char buffer[1024];
-		cin>>buffer;
-		write(sock,buffer,sizeof(buffer));
+		while(1){
+			cout<<"Enter a message to send"<<endl;
+			char buffer[1024];
+			cin>>buffer;
+			write(sock,buffer,sizeof(buffer));
+		}
 	}
 
 }

@@ -231,9 +231,9 @@ int send_udp_conn_request_tor(int port,char *i_ip_address,char *mac_address,int 
                    char port1[6];
                    sprintf(port1,"%d",port);
                    //while(strcmp(status,"ok")){
-                       sendto(udpSocket,port1,sizeof(port1),0,(struct sockaddr*)&udpStruct1,sizeof(udpStruct1));
-                       sendto(udpSocket,i_ip_address,SIZE_OF_IPV4_ADDRESS,0,(struct sockaddr*)&udpStruct1,sizeof(udpStruct1));
-                       memset(status,0,sizeof(status));
+                       sendto(udpSocket,mac_address,sizeof(mac_address),0,(struct sockaddr*)&udpStruct1,sizeof(udpStruct1));
+                       //sendto(udpSocket,i_ip_address,SIZE_OF_IPV4_ADDRESS,0,(struct sockaddr*)&udpStruct1,sizeof(udpStruct1));
+                       //memset(status,0,sizeof(status));
                        //recvfrom(udpSocket,status,sizeof(status),0,(struct sockaddr*)&udpStruct1,&len);
                            //close(udpSocket);
                        cout<<"Done"<<endl;
